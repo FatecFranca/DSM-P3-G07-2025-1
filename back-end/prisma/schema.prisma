@@ -19,3 +19,18 @@ model Tags {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+enum CollectionType {
+  development
+  production
+  staging
+}
+
+model Collection {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  name        String         @unique
+  description String?
+  type        CollectionType @default(development)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
