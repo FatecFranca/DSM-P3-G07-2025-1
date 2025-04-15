@@ -4,11 +4,9 @@ import { auth, isAdmin } from '../middlewares/auth.middleware.js'
 
 const router = Router()
 
-// Rotas públicas
 router.post('/register', createUser)
 router.post('/login', login)
 
-// Rotas protegidas
 router.get('/', auth, isAdmin, getAllUsers)
 router.get('/:id', auth, getUserById)
 router.put('/:id', auth, updateUser)
