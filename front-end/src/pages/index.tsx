@@ -58,7 +58,7 @@ export default function ApiTester() {
   const sendRequest = async () => {
     setLoading(true);
     setResponse(null);
-    setExecutionTime(""); 
+    setExecutionTime("");
 
     try {
       const startTime = performance.now(); // Marca o início do tempo
@@ -117,11 +117,11 @@ export default function ApiTester() {
           <>
             <button
               onClick={handleCreateApi}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+              className="bg-gradient-to-r from-pink-600 to-purple-600 px-6 py-3 rounded-lg text-white font-medium"
             >
               Criar nova API
             </button>
-            <p className="text-gray-300">
+            <p className="text-gray-300 mt-10">
               Para testar uma API, clique em "Criar nova API". Você poderá fornecer a URL, selecionar o método HTTP (GET, POST, etc.), e enviar o corpo da requisição, se necessário. Uma vez criada a API, você pode selecioná-la para testar a resposta.
             </p>
           </>

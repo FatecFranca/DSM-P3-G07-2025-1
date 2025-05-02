@@ -54,6 +54,8 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  teams     Team[]   @relation(fields: [teamIds], references: [id])
+  teamIds   String[] @db.ObjectId
 }
 
 model Team {
@@ -63,4 +65,6 @@ model Team {
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  users       User[]   @relation(fields: [userIds], references: [id])
+  userIds     String[] @db.ObjectId
 }
