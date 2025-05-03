@@ -25,54 +25,69 @@ export function ApiResponse({
   executionTime,
 }: ApiResponseProps): JSX.Element | null {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isRaw, setIsRaw] = useState(false); // alternar de JSON para Raw Data
+  const [isRaw, setIsRaw] = useState(false);
 
   if (!response) return null;
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-white relative">
-      <h2 className="text-xl font-semibold mb-4">Response</h2>
-      <p className="mb-2 text-sm text-gray-400">
-        Tempo de execução: {executionTime ? `${executionTime} ms` : "N/A"}
-      </p>
+    <div className="bg-gray-800/50 p-6 rounded-xl shadow-xl backdrop-blur-sm text-white relative">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+            Response
+          </h2>
+          <p className="text-gray-400 mt-1">
+            Tempo de execução: {executionTime ? `${executionTime} ms` : "N/A"}
+          </p>
+        </div>
 
-      {/* Botão para mudar entre JSON e Raw Data */}
-      <button
-        onClick={() => setIsRaw(!isRaw)}
-        className="absolute top-3.5 right-17 text-white bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-md flex items-center"
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsRaw(!isRaw)}
+            className="bg-gradient-to-r from-pink-600 to-purple-600 px-4 py-2 rounded-lg text-white font-medium
+            hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20
+            flex items-center gap-2"
+          >
+            <FaExchangeAlt />
+            {isRaw ? "JSON" : "Raw Data"}
+          </button>
 
-      >
-        <FaExchangeAlt className="mr-2" />
-        {isRaw ? "JSON" : "Raw Data"}
-      </button>
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="bg-gradient-to-r from-pink-600 to-purple-600 p-2 rounded-lg text-white
+            hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20"
+          >
+            <FaDownload />
+          </button>
+        </div>
+      </div>
 
-      <SyntaxHighlighter
-        language={isRaw ? "text" : "json"}
-        style={atelierLakesideDark}
-        wrapLongLines={true}
-        wrapLines={true}
-      >
-        {isRaw ? JSON.stringify(response) : JSON.stringify(response, null, 2)}
-      </SyntaxHighlighter>
-
-      <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="absolute top-4 right-4 text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-full"
-      >
-        <FaDownload />
-      </button>
+      <div className="bg-gray-700/50 rounded-lg border border-gray-600">
+        <SyntaxHighlighter
+          language={isRaw ? "text" : "json"}
+          style={atelierLakesideDark}
+          wrapLongLines={true}
+          wrapLines={true}
+          customStyle={{
+            background: 'transparent',
+            padding: '1.5rem'
+          }}
+        >
+          {isRaw ? JSON.stringify(response) : JSON.stringify(response, null, 2)}
+        </SyntaxHighlighter>
+      </div>
 
       {isDropdownOpen && (
-        <div className="absolute top-12 right-4 w-48 rounded-md shadow-lg bg-gray-700 text-white">
+        <div className="absolute top-16 right-4 w-48 bg-gray-800 rounded-xl shadow-xl border border-gray-700">
           <button
             onClick={() => exportToFile(response, "json")}
-            className="block px-4 py-2 text-sm hover:bg-gray-600 w-full text-left"
+            className="block w-full px-4 py-3 text-left hover:bg-gray-700/30 transition-colors duration-200 rounded-t-xl"
           >
             Exportar JSON
           </button>
           <button
             onClick={() => exportToFile(response, "txt")}
-            className="block px-4 py-2 text-sm hover:bg-gray-600 w-full text-left"
+            className="block w-full px-4 py-3 text-left hover:bg-gray-700/30 transition-colors duration-200 rounded-b-xl"
           >
             Exportar TXT
           </button>

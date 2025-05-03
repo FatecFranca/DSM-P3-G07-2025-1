@@ -25,25 +25,29 @@ export function ApiForm({
   loading,
 }: ApiFormProps): JSX.Element {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
+    <div className="bg-gray-800/50 p-6 rounded-xl shadow-xl backdrop-blur-sm">
       <div className="flex items-center mb-6 gap-4">
         <div className="flex-1">
-          <label className="block font-semibold mb-2">Endpoint URL</label>
+          <label className="block text-gray-400 font-medium mb-2">URL do Endpoint</label>
           <input
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://api.example.com"
-            className="w-full border border-gray-700 bg-gray-900 text-white rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white
+            placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent
+            transition-all duration-200"
           />
         </div>
 
         <div className="w-1/4">
-          <label className="block font-semibold mb-2">Method</label>
+          <label className="block text-gray-400 font-medium mb-2">Método</label>
           <select
             value={method}
             onChange={(e) => setMethod(e.target.value)}
-            className="w-full border border-gray-700 bg-gray-900 text-white rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white
+            focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent
+            transition-all duration-200"
           >
             <option value="GET">GET</option>
             <option value="POST">POST</option>
@@ -54,7 +58,8 @@ export function ApiForm({
 
         <button
           onClick={saveEndpoint}
-          className="bg-gray-500 mt-7 text-white p-3 rounded-md hover:bg-green-600 transition"
+          className="bg-gradient-to-r from-pink-600 to-purple-600 mt-7 text-white p-4 rounded-lg font-medium
+          hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20"
         >
           <FaSave size={20} />
         </button>
@@ -62,8 +67,9 @@ export function ApiForm({
         <button
           onClick={sendRequest}
           disabled={loading}
-          className="bg-gray-500 mt-7
-           text-white p-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:bg-gray-600 transition"
+          className="bg-gradient-to-r from-pink-600 to-purple-600 mt-7 text-white p-4 rounded-lg font-medium
+          hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20
+          disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed"
         >
           <FaPaperPlane size={20} />
         </button>
@@ -71,12 +77,14 @@ export function ApiForm({
 
       {method !== 'GET' && (
         <div className="mb-6">
-          <label className="block font-semibold mb-2">Request Body (JSON)</label>
+          <label className="block text-gray-400 font-medium mb-2">Corpo da Requisição (JSON)</label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder='{ "key": "value" }'
-            className="w-full border border-gray-700 bg-gray-900 text-white rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder='{ "chave": "valor" }'
+            className="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white
+            placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent
+            transition-all duration-200 min-h-[150px]"
           />
         </div>
       )}
