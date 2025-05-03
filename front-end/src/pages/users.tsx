@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import Link from "next/link";
 const initialUsers = [
   {
     name: "João Silva",
@@ -77,12 +77,12 @@ export default function UsersList() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <a href="/" className="text-pink-400 hover:text-pink-300 transition-colors duration-200 flex items-center gap-2">
+          <Link href="/times" className="text-pink-400 hover:text-pink-300 transition-colors duration-200 flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Voltar
-          </a>
+          </Link>
         </div>
 
         <div className="flex justify-between items-center mb-8">

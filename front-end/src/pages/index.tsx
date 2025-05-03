@@ -1,147 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import { Sidebar } from './components/Sidebar';
-import { ApiForm } from './components/ApiForm';
-import { ApiResponse } from './components/ApiResponse';
+import Head from 'next/head';
+import { useState } from 'react';
 
-interface Endpoint {
-  url: string;
-  method: string;
-  body?: string;
-}
-
-export default function ApiTester() {
-  const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [url, setUrl] = useState('');
-  const [method, setMethod] = useState('GET');
-  const [body, setBody] = useState('');
-  const [response, setResponse] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const [executionTime, setExecutionTime] = useState<string>("");
-
-  useEffect(() => {
-    const storedEndpoints = JSON.parse(localStorage.getItem('endpoints') || '[]');
-    setEndpoints(storedEndpoints);
-  }, []);
-
-  useEffect(() => {
-    if (selectedIndex !== null) {
-      const endpoint = endpoints[selectedIndex];
-      if (endpoint) {
-        setUrl(endpoint.url);
-        setMethod(endpoint.method);
-        setBody(endpoint.body || '');
-      }
-    }
-  }, [selectedIndex]);
-
-  const saveEndpoint = () => {
-    const newEndpoints = [...endpoints];
-    if (selectedIndex !== null) {
-      newEndpoints[selectedIndex] = { url, method, body };
-    }
-    setEndpoints(newEndpoints);
-    localStorage.setItem('endpoints', JSON.stringify(newEndpoints));
-  };
-
-  const deleteEndpoint = (index: number) => {
-    const newEndpoints = endpoints.filter((_, i) => i !== index);
-    setEndpoints(newEndpoints);
-    localStorage.setItem('endpoints', JSON.stringify(newEndpoints));
-    setSelectedIndex(null);
-    setUrl('');
-    setMethod('GET');
-    setBody('');
-  };
-
-  const sendRequest = async () => {
-    setLoading(true);
-    setResponse(null);
-    setExecutionTime("");
-
-    try {
-      const startTime = performance.now(); // Marca o início do tempo
-
-      const options: RequestInit = {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: method !== 'GET' ? body : undefined,
-      };
-
-      const res = await fetch(url, options);
-      const json = await res.json();
-
-      const endTime = performance.now(); // Marca o fim do tempo
-      const elapsedTime = endTime - startTime; // Calcula o tempo total
-
-      setResponse(json);
-      setExecutionTime(elapsedTime.toFixed(2));
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const handleCreateApi = () => {
-    setSelectedIndex(null);
-    setUrl('');
-    setMethod('GET');
-    setBody('');
-    setIsFirstLoad(false);
-    saveEndpoint();
-    setSelectedIndex(endpoints.length);
-  };
+export default function Home() {
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
-      <Sidebar
-        endpoints={endpoints}
-        selectEndpoint={(index: number) => {
-          setIsFirstLoad(false);
-          saveEndpoint();
-          setSelectedIndex(index);
-        }}
-        deleteEndpoint={deleteEndpoint}
-        selectedIndex={selectedIndex}
-        createEndpoint={handleCreateApi}
-      />
-      <div className="flex-grow p-6">
-        <h1 className="text-4xl font-semibold mb-6">Restify</h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      <Head>
+        <title>Restify - Teste de APIs Simplificado</title>
+        <meta name="description" content="Plataforma minimalista para teste e gerenciamento de APIs" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
 
-        {selectedIndex === null ? (
-          <>
-            <button
-              onClick={handleCreateApi}
-              className="bg-gradient-to-r from-pink-600 to-purple-600 px-6 py-3 rounded-lg text-white font-medium"
-            >
-              Criar nova API
-            </button>
-            <p className="text-gray-300 mt-10">
-              Para testar uma API, clique em "Criar nova API". Você poderá fornecer a URL, selecionar o método HTTP (GET, POST, etc.), e enviar o corpo da requisição, se necessário. Uma vez criada a API, você pode selecioná-la para testar a resposta.
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+              <span className="text-2xl font-bold">RF</span>
+            </div>
+          </div>
+          <h1 className="text-5xl font-bold mb-4">Restify</h1>
+          <p className="text-xl text-gray-400">Teste suas APIs de forma simples e rápida</p>
+        </div>
+
+        <div className="flex justify-center gap-6 mb-16">
+          <button
+            onClick={() => window.location.href = '/app'}
+            className="bg-gradient-to-r from-pink-600 to-purple-600 px-8 py-4 rounded-lg text-white font-medium 
+            hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20"
+          >
+            Testar sem Login
+          </button>
+
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="bg-gray-800/50 border border-gray-700 px-8 py-4 rounded-lg text-white font-medium 
+            hover:bg-gray-700/30 transition-all duration-200"
+          >
+            Entrar
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+          <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
+            <h3 className="text-xl font-semibold mb-3 bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              Sem Cadastro
+            </h3>
+            <p className="text-gray-400">
+              Comece a testar suas APIs instantaneamente, sem necessidade de criar uma conta
             </p>
-          </>
-        ) : null}
+          </div>
 
-        {!isFirstLoad && (
-          <ApiForm
-            url={url}
-            setUrl={setUrl}
-            method={method}
-            setMethod={setMethod}
-            body={body}
-            setBody={setBody}
-            sendRequest={sendRequest}
-            loading={loading}
-            saveEndpoint={saveEndpoint}
-          />
-        )}
+          <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
+            <h3 className="text-xl font-semibold mb-3 bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              Interface Limpa
+            </h3>
+            <p className="text-gray-400">
+              Design minimalista focado na experiência de teste de APIs
+            </p>
+          </div>
 
-        <ApiResponse response={response} executionTime={executionTime} />
+          <div className="bg-gray-800/30 p-6 rounded-xl backdrop-blur-sm">
+            <h3 className="text-xl font-semibold mb-3 bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              Recursos Avançados
+            </h3>
+            <p className="text-gray-400">
+              Faça login para salvar endpoints, criar coleções e mais
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-16 bg-gray-800/30 p-10 rounded-2xl backdrop-blur-sm border border-gray-700/30">
+          <h2 className="text-2xl font-bold mb-8 text-center">
+            <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              Teste de Stress
+            </span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                <h4 className="text-lg font-medium text-white">Análise de Performance</h4>
+              </div>
+              <p className="text-gray-400 leading-relaxed">
+                Configure testes de carga personalizados e obtenha métricas detalhadas de tempo de resposta, taxa de sucesso e falhas.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                <h4 className="text-lg font-medium text-white">Relatórios Detalhados</h4>
+              </div>
+              <p className="text-gray-400 leading-relaxed">
+                Exporte resultados em TXT e identifique gargalos de performance sob diferentes condições de carga.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
