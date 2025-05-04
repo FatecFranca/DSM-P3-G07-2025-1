@@ -7,13 +7,14 @@ import {
   deleteTag
 } from '../controllers/tag.controller.js'
 import { checkTagExists } from '../middlewares/tag.middleware.js'
+import { auth } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
 
-router.post('/', createTag)
-router.get('/', getAllTags)
-router.get('/:id', checkTagExists, getTagById)
-router.put('/:id', checkTagExists, updateTag)
-router.delete('/:id', checkTagExists, deleteTag)
+router.post('/', auth, createTag)
+router.get('/', auth, getAllTags)
+router.get('/:id', auth, checkTagExists, getTagById)
+router.put('/:id', auth, checkTagExists, updateTag)
+router.delete('/:id', auth, checkTagExists, deleteTag)
 
 export default router 

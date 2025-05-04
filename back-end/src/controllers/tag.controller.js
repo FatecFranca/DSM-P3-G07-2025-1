@@ -8,7 +8,8 @@ export const createTag = async (req, res) => {
       return res.status(400).json({ error: error.details[0].message })
     }
 
-    const { name, userId } = req.body
+    const { name } = req.body
+    const { id: userId } = req.user
 
     const tag = await prisma.tags.create({
       data: { 
@@ -27,7 +28,7 @@ export const createTag = async (req, res) => {
 
 export const getAllTags = async (req, res) => {
   try {
-    const { userId } = req.body
+    const { id: userId } = req.user
     const tags = await prisma.tags.findMany({
       where: {
         userId
@@ -43,12 +44,15 @@ export const getAllTags = async (req, res) => {
 export const getTagById = async (req, res) => {
   try {
     const { id } = req.params
-    const { userId } = req.body
+    const { id: userId } = req.user
 
     const tag = await prisma.tags.findFirst({
       where: {
         id,
         userId
+      },
+      include: {
+        user: true
       }
     })
 
@@ -69,8 +73,9 @@ export const updateTag = async (req, res) => {
       return res.status(400).json({ error: error.details[0].message })
     }
 
-    const { name, userId } = req.body
+    const { name } = req.body
     const { id } = req.params
+    const { id: userId } = req.user
 
     const existingTag = await prisma.tags.findFirst({
       where: {
@@ -102,7 +107,7 @@ export const updateTag = async (req, res) => {
 export const deleteTag = async (req, res) => {
   try {
     const { id } = req.params
-    const { userId } = req.body
+    const { id: userId } = req.user
 
     const existingTag = await prisma.tags.findFirst({
       where: {

@@ -23,6 +23,9 @@ export const getProfile = async (req, res) => {
         teams: true,
         createdAt: true,
         updatedAt: true
+      },
+      include: {
+        socialMedia: true,
       }
     })
 
