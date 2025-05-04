@@ -35,8 +35,11 @@ model Collection {
   type        CollectionType @default(development)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-
-  folders Folder[]
+  userId      String?        @db.ObjectId
+  user        User?          @relation(fields: [userId], references: [id])
+  teamId      String?        @db.ObjectId
+  team        Team?          @relation(fields: [teamId], references: [id])
+  folders     Folder[]
 }
 
 model Folder {
@@ -70,6 +73,7 @@ model User {
   socialMedia  SocialMedia[]
   Tags         Tags[]
   StressTest   StressTest[]
+  collections  Collection[]
 }
 
 model SocialMedia {
@@ -90,14 +94,15 @@ enum Platform {
 }
 
 model Team {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
   imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  users       User[]   @relation(fields: [userIds], references: [id])
-  userIds     String[] @db.ObjectId
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       User[]       @relation(fields: [userIds], references: [id])
+  userIds     String[]     @db.ObjectId
+  collections Collection[]
 }
 
 model StressTest {

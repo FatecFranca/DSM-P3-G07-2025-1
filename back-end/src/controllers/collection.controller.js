@@ -9,9 +9,15 @@ export const createCollection = async (req, res) => {
     }
 
     const { name, description, type } = req.body
+    const { id: userId } = req.user
 
     const collection = await prisma.collection.create({
-      data: { name, description, type }
+      data: {
+        name,
+        description,
+        type,
+        userId
+      }
     })
     res.status(201).json(collection)
   } catch (error) {
@@ -24,7 +30,26 @@ export const createCollection = async (req, res) => {
 
 export const getAllCollections = async (req, res) => {
   try {
-    const collections = await prisma.collection.findMany()
+    const { id: userId } = req.user
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { teams: true }
+    })
+
+    const teamIds = user.teams.map(team => team.id)
+
+    const collections = await prisma.collection.findMany({
+      where: {
+        OR: [
+          { userId },
+          { teamId: { in: teamIds } }
+        ]
+      },
+      include: {
+        team: true,
+      }
+    })
     res.json(collections)
   } catch (error) {
     console.error(error)
@@ -33,7 +58,20 @@ export const getAllCollections = async (req, res) => {
 }
 
 export const getCollectionById = async (req, res) => {
-  res.json(req.collection)
+  try {
+    const collection = await prisma.collection.findUnique({
+      where: {
+        id: req.params.id
+      },
+      include: {
+        user: true,
+        team: true
+      }
+    })
+    res.json(collection)
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar coleção' })
+  }
 }
 
 export const updateCollection = async (req, res) => {
@@ -44,10 +82,12 @@ export const updateCollection = async (req, res) => {
     }
 
     const { name, description, type } = req.body
+    const { id: userId } = req.user
 
     const collection = await prisma.collection.update({
       where: {
-        id: req.params.id
+        id: req.params.id,
+        userId
       },
       data: { name, description, type }
     })
@@ -63,13 +103,41 @@ export const updateCollection = async (req, res) => {
 
 export const deleteCollection = async (req, res) => {
   try {
+    const { id: userId } = req.user
     await prisma.collection.delete({
       where: {
-        id: req.params.id
+        id: req.params.id,
+        userId
       }
     })
     res.json({ message: 'Coleção removida com sucesso' })
   } catch (error) {
     res.status(500).json({ error: 'Erro ao remover coleção' })
   }
-} 
+}
+
+export const transferCollectionToTeam = async (req, res) => {
+  try {
+    const { teamId } = req.body
+    const { id: userId } = req.user
+
+    if (!teamId) {
+      return res.status(400).json({ error: 'ID do time é obrigatório' })
+    }
+
+    const collection = await prisma.collection.update({
+      where: {
+        id: req.params.id,
+        userId
+      },
+      data: {
+        teamId,
+        userId: null
+      }
+    })
+
+    res.json(collection)
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao transferir coleção para o time' })
+  }
+}

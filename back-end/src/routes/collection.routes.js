@@ -4,16 +4,19 @@ import {
   getAllCollections,
   getCollectionById,
   updateCollection,
-  deleteCollection
+  deleteCollection,
+  transferCollectionToTeam
 } from '../controllers/collection.controller.js'
 import { checkCollectionExists } from '../middlewares/collection.middleware.js'
+import { auth } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
 
-router.post('/', createCollection)
-router.get('/', getAllCollections)
-router.get('/:id', checkCollectionExists, getCollectionById)
-router.put('/:id', checkCollectionExists, updateCollection)
-router.delete('/:id', checkCollectionExists, deleteCollection)
+router.post('/', auth, createCollection)
+router.get('/', auth, getAllCollections)
+router.get('/:id', auth, checkCollectionExists, getCollectionById)
+router.put('/:id', auth, checkCollectionExists, updateCollection)
+router.delete('/:id', auth, checkCollectionExists, deleteCollection)
+router.post('/transfer', auth, transferCollectionToTeam)
 
 export default router 
