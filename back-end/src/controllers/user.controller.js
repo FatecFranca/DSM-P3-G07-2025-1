@@ -10,7 +10,7 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ error: error.details[0].message })
     }
 
-    const { name, email, password, role } = req.body
+    const { name, email, password } = req.body
 
     const existingUser = await prisma.user.findUnique({
       where: { email }
@@ -26,14 +26,14 @@ export const createUser = async (req, res) => {
       data: {
         name,
         email,
-        password: hashedPassword,
-        role
+        password: hashedPassword
       }
     })
 
     const { password: _, ...userWithoutPassword } = user
     res.status(201).json(userWithoutPassword)
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Erro ao criar usuário' })
   }
 }
@@ -61,7 +61,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     )
@@ -83,7 +83,6 @@ export const getAllUsers = async (req, res) => {
         id: true,
         name: true,
         email: true,
-        role: true,
         createdAt: true,
         updatedAt: true
       }
@@ -103,7 +102,6 @@ export const getUserById = async (req, res) => {
         id: true,
         name: true,
         email: true,
-        role: true,
         createdAt: true,
         updatedAt: true
       }
@@ -127,7 +125,7 @@ export const updateUser = async (req, res) => {
     }
 
     const { id } = req.params
-    const { name, email, password, role } = req.body
+    const { name, email, password } = req.body
 
     const user = await prisma.user.findUnique({
       where: { id }
@@ -137,7 +135,7 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' })
     }
 
-    const data = { name, email, role }
+    const data = { name, email }
     if (password) {
       data.password = await bcrypt.hash(password, 10)
     }
@@ -149,7 +147,6 @@ export const updateUser = async (req, res) => {
         id: true,
         name: true,
         email: true,
-        role: true,
         createdAt: true,
         updatedAt: true
       }

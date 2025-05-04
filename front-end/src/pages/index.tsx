@@ -24,7 +24,7 @@ export default function Home() {
 
         <div className="flex justify-center gap-6 mb-16">
           <button
-            onClick={() => window.location.href = '/app'}
+            onClick={() => window.location.href = '/app_simple'}
             className="bg-gradient-to-r from-pink-600 to-purple-600 px-8 py-4 rounded-lg text-white font-medium 
             hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20"
           >

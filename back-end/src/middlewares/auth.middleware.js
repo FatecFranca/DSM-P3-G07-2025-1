@@ -27,10 +27,3 @@ export const auth = async (req, res, next) => {
     res.status(500).json({ error: 'Erro na autenticação' })
   }
 }
-
-export const isAdmin = (req, res, next) => {
-  if (req.user.role !== 'ADMIN') {
-    return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem acessar este recurso.' })
-  }
-  next()
-} 

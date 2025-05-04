@@ -90,6 +90,9 @@ export default function Login() {
 
             <button
               type="submit"
+              onClick={() => {
+                window.location.href = '/collections';
+              }}
               className="w-full bg-gradient-to-r from-pink-600 to-purple-600 p-3 rounded-lg text-white font-medium
               hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20"
             >

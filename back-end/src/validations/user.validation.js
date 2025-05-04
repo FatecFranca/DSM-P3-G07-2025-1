@@ -15,14 +15,12 @@ export const createUserSchema = Joi.object({
     'string.empty': 'A senha é obrigatória',
     'any.required': 'A senha é obrigatória'
   }),
-  role: Joi.string().valid('ADMIN', 'USER').default('USER')
 })
 
 export const updateUserSchema = Joi.object({
   name: Joi.string().optional(),
   email: Joi.string().email().optional(),
   password: Joi.string().min(6).optional(),
-  role: Joi.string().valid('ADMIN', 'USER').optional()
 })
 
 export const loginSchema = Joi.object({

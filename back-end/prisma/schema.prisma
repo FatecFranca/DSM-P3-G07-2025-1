@@ -16,6 +16,8 @@ datasource db {
 model Tags {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -48,14 +50,42 @@ model Folder {
 }
 
 model User {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  bio          String?
+  location     String?
+  avatar       String?
+  email        String        @unique
+  phone        String?
+  password     String
+  technologies Json[]
+  education    Json[]
+  experience   Json[]
+  languages    String[]
+  interests    String[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  teams        Team[]        @relation(fields: [teamIds], references: [id])
+  teamIds      String[]      @db.ObjectId
+  socialMedia  SocialMedia[]
+  Tags         Tags[]
+}
+
+model SocialMedia {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String   @unique
-  password  String
+  platform  Platform
+  username  String
+  url       String
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  teams     Team[]   @relation(fields: [teamIds], references: [id])
-  teamIds   String[] @db.ObjectId
+}
+
+enum Platform {
+  github
+  twitter
+  linkedin
 }
 
 model Team {

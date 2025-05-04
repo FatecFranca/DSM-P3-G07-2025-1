@@ -136,7 +136,8 @@ export default function WorkspaceList() {
             </thead>
             <tbody>
               {filteredWorkspaces.map((workspace, index) => (
-                <tr key={index} className="border-b border-gray-700 hover:bg-gray-700/30 transition-colors duration-200">
+                <tr key={index} className="border-b border-gray-700 hover:bg-gray-700/30 transition-colors duration-200 cursor-pointer"
+                    onClick={() => window.location.href = '/app'}>
                   <td className="py-4 px-6 font-medium">{workspace.name}</td>
                   <td className="py-4 px-6 flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">

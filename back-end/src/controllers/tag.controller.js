@@ -8,14 +8,17 @@ export const createTag = async (req, res) => {
       return res.status(400).json({ error: error.details[0].message })
     }
 
-    const { name } = req.body
+    const { name, userId } = req.body
 
     const tag = await prisma.tags.create({
-      data: { name }
+      data: { 
+        name,
+        userId
+      }
     })
     res.status(201).json(tag)
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.code === 'P2002') {
       return res.status(400).json({ error: 'Tag com este nome já existe' })
     }
     res.status(500).json({ error: 'Erro ao criar tag' })
@@ -24,7 +27,12 @@ export const createTag = async (req, res) => {
 
 export const getAllTags = async (req, res) => {
   try {
-    const tags = await prisma.tags.findMany()
+    const { userId } = req.body
+    const tags = await prisma.tags.findMany({
+      where: {
+        userId
+      }
+    })
     res.json(tags)
   } catch (error) {
     console.error(error)
@@ -33,7 +41,25 @@ export const getAllTags = async (req, res) => {
 }
 
 export const getTagById = async (req, res) => {
-  res.json(req.tag)
+  try {
+    const { id } = req.params
+    const { userId } = req.body
+
+    const tag = await prisma.tags.findFirst({
+      where: {
+        id,
+        userId
+      }
+    })
+
+    if (!tag) {
+      return res.status(404).json({ error: 'Tag não encontrada' })
+    }
+
+    res.json(tag)
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar tag' })
+  }
 }
 
 export const updateTag = async (req, res) => {
@@ -43,18 +69,30 @@ export const updateTag = async (req, res) => {
       return res.status(400).json({ error: error.details[0].message })
     }
 
-    const { name } = req.body
+    const { name, userId } = req.body
+    const { id } = req.params
+
+    const existingTag = await prisma.tags.findFirst({
+      where: {
+        id,
+        userId
+      }
+    })
+
+    if (!existingTag) {
+      return res.status(404).json({ error: 'Tag não encontrada' })
+    }
 
     const tag = await prisma.tags.update({
       where: {
-        id: req.params.id
+        id
       },
       data: { name }
     })
 
     res.json(tag)
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.code === 'P2002') {
       return res.status(400).json({ error: 'Tag com este nome já existe' })
     }
     res.status(500).json({ error: 'Erro ao atualizar tag' })
@@ -63,9 +101,23 @@ export const updateTag = async (req, res) => {
 
 export const deleteTag = async (req, res) => {
   try {
+    const { id } = req.params
+    const { userId } = req.body
+
+    const existingTag = await prisma.tags.findFirst({
+      where: {
+        id,
+        userId
+      }
+    })
+
+    if (!existingTag) {
+      return res.status(404).json({ error: 'Tag não encontrada' })
+    }
+
     await prisma.tags.delete({
       where: {
-        id: req.params.id
+        id
       }
     })
     res.json({ message: 'Tag removida com sucesso' })
