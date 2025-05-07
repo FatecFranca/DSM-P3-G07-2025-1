@@ -7,10 +7,10 @@ import collectionsRouter from './routes/collection.routes.js'
 import usersRouter from './routes/user.routes.js'
 import teamsRouter from './routes/team.routes.js'
 import profileRouter from './routes/profile.routes.js'
-import environmentRouter from './routes/environment.routes.js'
 import stressTestRouter from './routes/stress.test.routes.js'
 import endpointRouter from './routes/endpoint.routes.js'
 import folderRouter from './routes/folder.routes.js'
+import environmentRouter from './routes/environment.routes.js'
 
 const app = express()
 

@@ -8,8 +8,9 @@ import {
 } from '../controllers/environment.controller.js'
 import { checkEnvironmentExists } from '../middlewares/environment.middleware.js'
 import { auth } from '../middlewares/auth.middleware.js'
+import { Router } from 'express'
 
-const router = express.Router()
+const router = Router()
 
 router.post('/', auth, createEnvironment)
 router.get('/', auth, getAllEnvironments)
