@@ -42,6 +42,28 @@ model Collection {
   folders     Folder[]
 }
 
+model Endpoint {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  url              String
+  method           String
+  headers          Json
+  body             Json
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  EndpointResponse EndpointResponse[]
+}
+
+model EndpointResponse {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  endpointId String   @db.ObjectId
+  endpoint   Endpoint @relation(fields: [endpointId], references: [id])
+  response   Json
+  statusCode Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
 model Folder {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
   name         String
