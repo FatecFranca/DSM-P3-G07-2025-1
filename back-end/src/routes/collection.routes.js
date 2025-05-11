@@ -9,6 +9,7 @@ import {
 } from '../controllers/collection.controller.js'
 import { checkCollectionExists } from '../middlewares/collection.middleware.js'
 import { auth } from '../middlewares/auth.middleware.js'
+import { Router } from 'express'
 
 const router = express.Router()
 

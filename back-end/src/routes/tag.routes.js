@@ -8,7 +8,7 @@ import {
 } from '../controllers/tag.controller.js'
 import { checkTagExists } from '../middlewares/tag.middleware.js'
 import { auth } from '../middlewares/auth.middleware.js'
-
+import { Router } from 'express'
 const router = express.Router()
 
 router.post('/', auth, createTag)

@@ -3,7 +3,7 @@ import tagRoutes from './tag.routes.js'
 import collectionRoutes from './collection.routes.js'
 import userRoutes from './user.routes.js'
 import teamRoutes from './team.routes.js'
-
+import environmentRoutes from './environment.routes.js'
 const router = express.Router()
 
 router.use('/tags', tagRoutes)

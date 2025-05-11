@@ -40,6 +40,29 @@ model Collection {
   teamId      String?        @db.ObjectId
   team        Team?          @relation(fields: [teamId], references: [id])
   folders     Folder[]
+  Environment Environment[]
+}
+
+model Endpoint {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  url              String
+  method           String
+  headers          Json
+  body             Json
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  EndpointResponse EndpointResponse[]
+}
+
+model EndpointResponse {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  endpointId String   @db.ObjectId
+  endpoint   Endpoint @relation(fields: [endpointId], references: [id])
+  response   Json
+  statusCode Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Folder {
@@ -118,4 +141,14 @@ model StressTest {
   createdAt   DateTime @default(now())
   userId      String   @db.ObjectId
   user        User     @relation(fields: [userId], references: [id])
+}
+
+model Environment {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  variables    Json
+  collection   Collection @relation(fields: [collectionId], references: [id])
+  collectionId String     @db.ObjectId
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
