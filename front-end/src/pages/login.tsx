@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import { FaGoogle, FaGithub, FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -8,13 +9,54 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementar lógica de login/cadastro
+
+    try {
+      if (isLogin) {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = '/collections';
+        } else {
+          console.log("Erro")
+          toast.error('Erro ao fazer login. Verifique suas credenciais.');
+        }
+      } else {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        if (response.ok) {
+          setIsLogin(true);
+          toast.success('Conta criada com sucesso! Faça login para continuar.');
+        } else {
+          toast.error('Erro ao criar conta. Tente novamente.');
+        }
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      toast.error('Erro ao processar sua requisição. Tente novamente.');
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex items-center justify-center p-4">
+      <Toaster />
       <Head>
         <title>{isLogin ? 'Login' : 'Cadastro'} - Restify</title>
         <meta name="description" content="Entre ou cadastre-se no Restify" />
@@ -90,9 +132,6 @@ export default function Login() {
 
             <button
               type="submit"
-              onClick={() => {
-                window.location.href = '/collections';
-              }}
               className="w-full bg-gradient-to-r from-pink-600 to-purple-600 p-3 rounded-lg text-white font-medium
               hover:from-pink-500 hover:to-purple-500 transition-all duration-200 shadow-lg hover:shadow-pink-500/20"
             >
@@ -109,7 +148,7 @@ export default function Login() {
               </div>
             </div>
 
-            
+
           </div>
 
           <p className="mt-6 text-center text-gray-400">

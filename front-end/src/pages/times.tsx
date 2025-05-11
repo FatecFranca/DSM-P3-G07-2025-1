@@ -1,28 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { Topbar } from "./components/Topbar";
+import { toast } from "react-toastify";
 
-const initialTeams = [
-  {
-    name: "Time Principal",
-    description: "Equipe responsável pelo desenvolvimento do produto principal",
-    leader: "João Silva",
-    members: 8,
-    projects: 3,
-    status: "Ativo"
-  },
-  {
-    name: "Time de Design",
-    description: "Equipe focada na experiência do usuário e interface",
-    leader: "Maria Santos", 
-    members: 5,
-    projects: 2,
-    status: "Ativo"
-  }
-];
+interface Team {
+  id: string;
+  name: string;
+  description: string;
+  leader: string;
+  members: number;
+  projects: number;
+  status: string;
+}
 
 export default function TeamsList() {
   const router = useRouter();
-  const [teams, setTeams] = useState(initialTeams);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -35,23 +28,65 @@ export default function TeamsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/teams/user`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data);
+      } else {
+        toast.error('Erro ao carregar times');
+      }
+    } catch (error) {
+      toast.error('Erro ao carregar times');
+    }
+  };
+
+  useEffect(() => {
+    fetchTeams();
+  }, []);
+
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name || !form.description || !form.leader) return;
-    setTeams((prev) => [...prev, form]);
-    setIsDialogOpen(false);
-    setForm({
-      name: "",
-      description: "",
-      leader: "",
-      members: 0,
-      projects: 0,
-      status: "Ativo"
-    });
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/teams`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(form)
+      });
+
+      if (response.ok) {
+        toast.success('Time criado com sucesso');
+        setIsDialogOpen(false);
+        setForm({
+          name: "",
+          description: "",
+          leader: "",
+          members: 0,
+          projects: 0,
+          status: "Ativo"
+        });
+        fetchTeams();
+      } else {
+        toast.error('Erro ao criar time');
+      }
+    } catch (error) {
+      toast.error('Erro ao criar time');
+    }
   };
 
   const handleSort = (key: any) => {
@@ -62,8 +97,24 @@ export default function TeamsList() {
     setSortConfig({ key, direction });
   };
 
-  const handleRemoveTeam = (name: string) => {
-    setTeams((prev) => prev.filter(team => team.name !== name));
+  const handleRemoveTeam = async (id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/teams/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        toast.success('Time removido com sucesso');
+        fetchTeams();
+      } else {
+        toast.error('Erro ao remover time');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover time');
+    }
   };
 
   const sortedTeams = [...teams].sort((a, b) => {
@@ -85,12 +136,7 @@ export default function TeamsList() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <a href="/perfil" className="text-pink-400 hover:text-pink-300 transition-colors duration-200 flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Voltar
-          </a>
+          <Topbar />
         </div>
 
         <div className="flex justify-between items-center mb-8">
@@ -125,11 +171,11 @@ export default function TeamsList() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTeams.map((team, index) => (
-            <div 
-              key={index} 
+          {filteredTeams.map((team) => (
+            <div
+              key={team.id}
               className="bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/30 cursor-pointer hover:bg-gray-800/70 transition-all duration-200"
-              onClick={() => router.push('/users')}
+              onClick={() => router.push(`/teams/users/${team.id}`)}
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -139,7 +185,7 @@ export default function TeamsList() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRemoveTeam(team.name);
+                    handleRemoveTeam(team.id);
                   }}
                   className="text-red-400 hover:text-red-300 transition-colors duration-200"
                 >
@@ -148,7 +194,7 @@ export default function TeamsList() {
                   </svg>
                 </button>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-gray-400">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,7 +202,7 @@ export default function TeamsList() {
                   </svg>
                   <span>Líder: {team.leader}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2 text-gray-400">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -172,9 +218,8 @@ export default function TeamsList() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    team.status === "Ativo" ? "bg-green-500/20 text-green-400" : "bg-gray-700 text-gray-400"
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-sm ${team.status === "Ativo" ? "bg-green-500/20 text-green-400" : "bg-gray-700 text-gray-400"
+                    }`}>
                     {team.status}
                   </span>
                 </div>
