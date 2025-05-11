@@ -24,9 +24,6 @@ export const getProfile = async (req, res) => {
         createdAt: true,
         updatedAt: true
       },
-      include: {
-        socialMedia: true,
-      }
     })
 
     if (!profile) {

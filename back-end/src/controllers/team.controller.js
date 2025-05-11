@@ -36,6 +36,29 @@ export const getTeamById = async (req, res) => {
   res.json(req.team)
 }
 
+export const getTeamsByUserID = async (req, res) => {
+  try {
+    const { id: userId } = req.user
+
+    const teams = await prisma.team.findMany({
+      where: {
+        users: {
+          some: {
+            id: userId
+          }
+        }
+      }
+    })
+
+    res.json(teams)
+  } catch (error) {
+    console.log(error)
+    console.error(error)
+    res.status(500).json({ error: 'Erro ao buscar times do usuário' })
+  }
+}
+
+
 export const updateTeam = async (req, res) => {
   try {
     const { error } = updateTeamSchema.validate(req.body)
@@ -73,3 +96,33 @@ export const deleteTeam = async (req, res) => {
     res.status(500).json({ error: 'Erro ao remover time' })
   }
 } 
+
+export const getUsersOfATeam = async (req, res) => {
+  try {
+    const team = await prisma.team.findUnique({
+      where: {
+        id: req.params.id
+      },
+      include: {
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        }
+      }
+    })
+
+    if (!team) {
+      return res.status(404).json({ error: 'Time não encontrado' })
+    }
+
+    res.json(team.users)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Erro ao buscar usuários do time' })
+  }
+}
