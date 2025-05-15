@@ -4,6 +4,8 @@ import prisma from '../database/client.js'
 export const createTeam = async (req, res) => {
   try {
     const { error } = createTeamSchema.validate(req.body)
+    const userId = req.user.id
+
     if (error) {
       return res.status(400).json({ error: error.details[0].message })
     }
@@ -11,7 +13,7 @@ export const createTeam = async (req, res) => {
     const { name, description, imageUrl } = req.body
 
     const team = await prisma.team.create({
-      data: { name, description, imageUrl }
+      data: { name, description, imageUrl, userIds: [userId] }
     })
     res.status(201).json(team)
   } catch (error) {
@@ -42,11 +44,13 @@ export const getTeamsByUserID = async (req, res) => {
 
     const teams = await prisma.team.findMany({
       where: {
-        users: {
-          some: {
-            id: userId
-          }
-        }
+        userIds: {
+          has: userId
+        },
+      },
+      include: {
+        users: true,
+        collections: true
       }
     })
 
@@ -95,7 +99,7 @@ export const deleteTeam = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Erro ao remover time' })
   }
-} 
+}
 
 export const getUsersOfATeam = async (req, res) => {
   try {

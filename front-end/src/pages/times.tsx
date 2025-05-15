@@ -7,10 +7,21 @@ interface Team {
   id: string;
   name: string;
   description: string;
-  leader: string;
-  members: number;
-  projects: number;
+  users: User[];
+  collections: Collection[];
   status: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+interface Collection {
+  id: string;
+  name: string;
+  description: string;
 }
 
 export default function TeamsList() {
@@ -20,13 +31,15 @@ export default function TeamsList() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    leader: "",
     members: 0,
     projects: 0,
     status: "Ativo"
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
 
   const fetchTeams = async () => {
     try {
@@ -57,7 +70,7 @@ export default function TeamsList() {
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.description || !form.leader) return;
+    if (!form.name || !form.description) return;
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/teams`, {
@@ -66,7 +79,10 @@ export default function TeamsList() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          name: form.name,
+          description: form.description
+        })
       });
 
       if (response.ok) {
@@ -75,7 +91,6 @@ export default function TeamsList() {
         setForm({
           name: "",
           description: "",
-          leader: "",
           members: 0,
           projects: 0,
           status: "Ativo"
@@ -89,33 +104,6 @@ export default function TeamsList() {
     }
   };
 
-  const handleSort = (key: any) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const handleRemoveTeam = async (id: string) => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/teams/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        toast.success('Time removido com sucesso');
-        fetchTeams();
-      } else {
-        toast.error('Erro ao remover time');
-      }
-    } catch (error) {
-      toast.error('Erro ao remover time');
-    }
-  };
 
   const sortedTeams = [...teams].sort((a, b) => {
     if (!sortConfig.key) return 0;
@@ -131,6 +119,30 @@ export default function TeamsList() {
       value.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
+
+
+  const confirmRemoveTeam = async () => {
+    if (!teamToDelete) return;
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/teams/${teamToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        toast.success('Time removido com sucesso');
+        setTeamToDelete(null);
+        fetchTeams();
+      } else {
+        toast.error('Erro ao remover time');
+      }
+    } catch (error) {
+      toast.error('Erro ao remover time');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -175,7 +187,7 @@ export default function TeamsList() {
             <div
               key={team.id}
               className="bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm border border-gray-700/30 cursor-pointer hover:bg-gray-800/70 transition-all duration-200"
-              onClick={() => router.push(`/teams/users/${team.id}`)}
+              onClick={() => router.push(`/users/${team.id}`)}
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -185,7 +197,8 @@ export default function TeamsList() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRemoveTeam(team.id);
+                    setTeamToDelete(team);
+                    setIsDeleteDialogOpen(true);
                   }}
                   className="text-red-400 hover:text-red-300 transition-colors duration-200"
                 >
@@ -196,33 +209,23 @@ export default function TeamsList() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span>Líder: {team.leader}</span>
-                </div>
+
 
                 <div className="flex items-center gap-2 text-gray-400">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <span>{team.members} membros</span>
+                  <span>{team.users.length} membros</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-gray-400">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  <span>{team.projects} projetos</span>
+                  <span>{team.collections.length} projetos</span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-sm ${team.status === "Ativo" ? "bg-green-500/20 text-green-400" : "bg-gray-700 text-gray-400"
-                    }`}>
-                    {team.status}
-                  </span>
-                </div>
+
               </div>
             </div>
           ))}
@@ -252,15 +255,6 @@ export default function TeamsList() {
               transition-all duration-200"
               onChange={handleInputChange}
             />
-            <input
-              type="text"
-              name="leader"
-              placeholder="Líder do time"
-              className="w-full p-3 mb-6 bg-gray-700/50 border border-gray-600 rounded-lg text-white
-              placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent
-              transition-all duration-200"
-              onChange={handleInputChange}
-            />
             <div className="flex justify-end gap-3">
               <button
                 className="px-6 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 
@@ -280,6 +274,35 @@ export default function TeamsList() {
           </div>
         </div>
       )}
+
+      {teamToDelete && isDeleteDialogOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-900 rounded-xl shadow-lg p-6 max-w-sm w-full border border-gray-700">
+            <h2 className="text-xl font-semibold text-white mb-4">Confirmar exclusão</h2>
+            <p className="text-gray-400 mb-6">
+              Tem certeza que deseja excluir o time <span className="text-red-400 font-medium">{teamToDelete.name}</span>?
+              Esta ação não poderá ser desfeita.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setTeamToDelete(null)}
+                className="px-4 py-2 rounded-md text-white bg-gray-700 hover:bg-gray-600 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmRemoveTeam}
+                className="px-4 py-2 rounded-md text-white bg-red-600 hover:bg-red-500 transition"
+              >
+                Deletar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
+
+
   );
 }
