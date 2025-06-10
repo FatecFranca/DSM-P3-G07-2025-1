@@ -144,4 +144,60 @@ export const deleteFolder = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Erro ao remover pasta' })
   }
-} 
+}     
+
+export const addTagToFolder = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { tagId } = req.body
+
+    const folder = await prisma.folder.update({
+      where: { id },
+      data: { tags: { connect: { id: tagId } } }
+    })
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao adicionar tag à pasta' })
+  }
+}
+
+export const removeTagFromFolder = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { tagId } = req.body 
+
+    const folder = await prisma.folder.update({
+      where: { id },
+      data: { tags: { disconnect: { id: tagId } } }
+    })
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao remover tag da pasta' })
+  }
+}
+
+export const addEndpointToFolder = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { endpointId } = req.body
+
+    const folder = await prisma.folder.update({
+      where: { id },
+      data: { endpoints: { connect: { id: endpointId } } }
+    })    
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao adicionar endpoint à pasta' })
+  }
+}
+
+export const removeEndpointFromFolder = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { endpointId } = req.body
+
+    const folder = await prisma.folder.update({
+      where: { id },
+      data: { endpoints: { disconnect: { id: endpointId } } }
+    })
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao remover endpoint da pasta' })
+  }
+}

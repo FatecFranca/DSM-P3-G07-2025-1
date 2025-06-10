@@ -94,3 +94,37 @@ export const deleteEndpointResponse = async (req, res) => {
     res.status(500).json({ error: 'Erro ao remover resposta do endpoint' })
   }
 }
+
+export const addTagToEndpointResponse = async (req, res) => {
+  try {
+    const { endpointResponseId, tagId } = req.body
+    const endpointResponse = await prisma.endpointResponse.update({
+      where: {
+        id: endpointResponseId
+      },
+      data: {
+        tags: { connect: { id: tagId } }
+      }
+    })
+    res.json(endpointResponse)
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao adicionar tag à resposta do endpoint' })
+  }
+}
+
+export const removeTagFromEndpointResponse = async (req, res) => {
+  try {
+    const { endpointResponseId, tagId } = req.body
+    const endpointResponse = await prisma.endpointResponse.update({
+      where: {
+        id: endpointResponseId
+      },
+      data: {
+        tags: { disconnect: { id: tagId } }
+      }
+    })
+    res.json(endpointResponse)
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao remover tag da resposta do endpoint' })
+  }
+}
