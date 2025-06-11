@@ -8,7 +8,4 @@ router.post('/', auth, createEndpoint)
 router.get('/', auth, getAllEndpoints)
 router.get('/:id', auth, getEndpointById)
 router.put('/:id', auth, updateEndpoint)
-router.post('/:id/tags', auth, addTagToEndpoint)
-router.delete('/:id/tags', auth, removeTagFromEndpoint)
-
 export default router
